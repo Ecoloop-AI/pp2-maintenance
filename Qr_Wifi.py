@@ -101,6 +101,11 @@ select#ccSelect.synced{border-color:#10b981}
 .btn-export:hover{background:rgba(16,185,129,.22);box-shadow:0 0 16px rgba(16,185,129,.2);transform:translateY(-1px)}
 .btn-reset{background:rgba(245,158,11,.08);color:var(--amber);border-color:rgba(245,158,11,.25)}
 .btn-reset:hover{background:rgba(245,158,11,.18);transform:translateY(-1px)}
+
+/* ── NEW: Load from DB button ── */
+.btn-load{background:rgba(139,92,246,.12);color:#a78bfa;border-color:rgba(139,92,246,.35)}
+.btn-load:hover{background:rgba(139,92,246,.22);box-shadow:0 0 16px rgba(139,92,246,.2);transform:translateY(-1px)}
+
 .bar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
 .bar-counter{font-family:var(--mono);font-size:11px;color:var(--text3)}
 .bar-counter strong{color:var(--cyan)}
@@ -139,6 +144,8 @@ select#ccSelect.synced{border-color:#10b981}
 .sec-pressure{--accent:#14b8a6;--accent-rgb:20,184,166}
 .sec-sag    {--accent:#f43f5e;--accent-rgb:244,63,94}
 .sec-rev    {--accent:#6366f1;--accent-rgb:99,102,241}
+
+/* ── SESSION queue panel ── */
 .records-panel{position:relative;z-index:1;margin:0 40px 36px;background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .records-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--s2)}
 .records-head h3{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:8px}
@@ -156,9 +163,25 @@ select#ccSelect.synced{border-color:#10b981}
 .empty-state svg{display:block;margin:0 auto 12px;opacity:.3}
 .filled-badge{margin-left:auto;font-size:10px;color:var(--text3);font-family:var(--mono);background:var(--s3);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
 .filled-badge.has-data{color:#10b981;border-color:rgba(16,185,129,.3)}
+
+/* ── NEW: DB records panel ── */
+.db-records-panel{position:relative;z-index:1;margin:0 40px 36px;background:var(--s1);border:1px solid rgba(139,92,246,.35);border-radius:14px;overflow:hidden}
+.db-records-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--s2)}
+.db-records-head h3{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:8px;color:#a78bfa}
+.db-records-head h3 svg{flex-shrink:0}
+.db-records-head h3 span{background:#8b5cf6;color:#fff;border-radius:20px;padding:1px 9px;font-size:11px}
+.db-filter-bar{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--s2);flex-wrap:wrap}
+.db-filter-bar label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.db-filter-bar input{background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 12px;outline:none;width:200px;transition:border-color 150ms}
+.db-filter-bar input:focus{border-color:#8b5cf6;box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.db-status{font-size:11px;font-family:var(--mono);color:var(--text3);white-space:nowrap}
+.db-status.loading{color:#22d3ee;animation:blink 1s ease infinite}
+.db-status.ok{color:#10b981}
+.db-status.err{color:#f43f5e}
+
 #toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:none;min-width:220px;background:var(--s3);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:600;box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 0 1px var(--border2);animation:toastin 250ms cubic-bezier(.34,1.56,.64,1)}
 @keyframes toastin{from{transform:translateY(20px) scale(.95);opacity:0}to{transform:none;opacity:1}}
-@media(max-width:900px){.hero,.form-page,.records-panel,.car-banner{padding-left:20px;padding-right:20px}.action-bar{padding-left:20px;padding-right:20px}.records-panel{margin-left:20px;margin-right:20px}.fgrid-4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.hero,.form-page,.records-panel,.car-banner,.db-records-panel{padding-left:20px;padding-right:20px}.action-bar{padding-left:20px;padding-right:20px}.records-panel,.db-records-panel{margin-left:20px;margin-right:20px}.fgrid-4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.two-col{grid-template-columns:1fr}.pair-row{grid-template-columns:1fr}.hero h1{font-size:18px}.stat-chip{display:none}}
 </style>
 </head>
@@ -252,6 +275,15 @@ select#ccSelect.synced{border-color:#10b981}
     <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M2.75 14A1.75 1.75 0 011 12.25v-2.5a.75.75 0 011.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 00.25-.25v-2.5a.75.75 0 011.5 0v2.5A1.75 1.75 0 0113.25 14H2.75zM7.25 7.689L5.03 5.47a.75.75 0 00-1.06 1.06l3.5 3.5a.75.75 0 001.06 0l3.5-3.5a.75.75 0 00-1.06-1.06L8.75 7.689V2a.75.75 0 00-1.5 0v5.689z"/></svg>
     Export Excel
   </button>
+
+  <!-- ══ NEW: Load from DB button ══ -->
+  <button class="btn btn-load" id="btnLoadDB">
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 1a7 7 0 110 14A7 7 0 018 1zm0 1.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM8 5a.75.75 0 01.75.75v2.69l1.28-1.28a.75.75 0 011.06 1.06l-2.5 2.5a.75.75 0 01-1.06 0l-2.5-2.5a.75.75 0 011.06-1.06L7.25 8.44V5.75A.75.75 0 018 5z"/>
+    </svg>
+    Load from DB
+  </button>
+
   <button class="btn btn-reset" id="btnReset">
     <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1.705 8.005a.75.75 0 01.834.656 5.5 5.5 0 009.592 2.97l-1.204-1.204a.25.25 0 01.177-.427h3.646a.25.25 0 01.25.25v3.646a.25.25 0 01-.427.177l-1.38-1.38A7.002 7.002 0 011.05 8.84a.75.75 0 01.656-.834zM8 2.5a5.487 5.487 0 00-4.131 1.869l1.204 1.204A.25.25 0 014.896 6H1.25A.25.25 0 011 5.75V2.104a.25.25 0 01.427-.177l1.38 1.38A7.002 7.002 0 0114.95 7.16a.75.75 0 01-1.49.178A5.5 5.5 0 008 2.5z"/></svg>
     Clear Form
@@ -450,7 +482,25 @@ select#ccSelect.synced{border-color:#10b981}
     </div>
   </div>
 </div>
+<div class="sec sec-rev" style="--accent:#f43f5e;--accent-rgb:244,63,94">
+  <div class="sec-head">
+    <div class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+    <div class="sec-title-wrap"><div class="sec-cat">Section 10</div><div class="sec-title">Problem & Solution</div></div>
+    <div class="filled-badge" id="badge-probsol">0 / 2</div>
+  </div>
+  <div class="sec-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="field">
+      <label>Problem</label>
+      <input id="problem" type="text" placeholder="Describe the problem…" data-sec="probsol"/>
+    </div>
+    <div class="field">
+      <label>Solution</label>
+      <input id="solution" type="text" placeholder="Describe the solution…" data-sec="probsol"/>
+    </div>
+  </div>
+</div>
 
+<!-- ══ SESSION QUEUE PANEL (unchanged) ══ -->
 <div class="records-panel">
   <div class="records-head">
     <h3>Session Queue <span id="recBadge">0</span></h3>
@@ -469,9 +519,48 @@ select#ccSelect.synced{border-color:#10b981}
   </div>
 </div>
 
+<!-- ══ NEW: DATABASE RECORDS PANEL ══ -->
+<div class="db-records-panel" id="dbPanel" style="display:none">
+  <div class="db-records-head">
+    <h3>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#8b5cf6">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      </svg>
+      Database Records
+      <span id="dbBadge">0</span>
+    </h3>
+    <div class="db-status" id="dbStatus">—</div>
+  </div>
+  <div class="db-filter-bar">
+    <label>Filter by CC No</label>
+    <input type="text" id="dbFilterCC" placeholder="e.g. CC No-31  (leave blank for all)" autocomplete="off"/>
+    <button class="btn btn-load" id="btnFilterDB" style="padding:7px 14px;font-size:12px">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M6 10.5a.5.5 0 01.5-.5h3a.5.5 0 010 1h-3a.5.5 0 01-.5-.5zm-2-3a.5.5 0 01.5-.5h7a.5.5 0 010 1h-7a.5.5 0 01-.5-.5zm-2-3a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg>
+      Filter
+    </button>
+    <button class="btn btn-reset" id="btnClearFilter" style="padding:7px 14px;font-size:12px">Show All</button>
+  </div>
+  <div class="tscroll" style="max-height:340px">
+    <table class="rtable" id="dbTable">
+      <thead id="dbHead"></thead>
+      <tbody id="dbBody">
+        <tr><td colspan="99"><div class="empty-state">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Click <strong style="color:#a78bfa">Load from DB</strong> to fetch saved records from MySQL.
+        </div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
+/* ══════════════════════════════════════════════
+   API BASE — point to your cPanel PHP files
+   ══════════════════════════════════════════════ */
+const API_BASE = 'https://ecoloop.in/api';
+
 /* ══ LOOKUP TABLES ══ */
 const CC_TO_QR = {"1":"57","2":"43","SP4":"59","5":"130","6":"46","7":"160","8":"72","SP9":"91","9":"105","AK10":"155","12":"86","13":"4","14":"65","15":"149","16":"111","SP17":"47","SP18":"41","20":"29","21":"97","22":"126","23":"62","25":"87","AK26":"90","27":"73","28":"141","29":"","31":"12","32":"23","33":"6","34":"152","35":"171","36":"161","36-1":"","37":"88","38":"26","39":"82","SP40":"121","40":"55","42":"101","42/1":"22","43":"52","44":"98","AK45":"104","47":"35","48":"129","49":"","AK51":"69","52/1":"107","SP52":"115","52":"","AK53":"78","SP54":"140","56":"","AN57":"124","58":"172","60":"44","61":"95","62":"60","63":"53","AN64":"28","SP66":"159","67":"71","SP68":"110","69":"133","71":"154","71/1":"96","72":"30","72/1":"32","73":"31","74":"74","75":"169","76":"66","76/1":"102","77":"84","78":"37","79":"","80":"13","81":"167","AN82":"93","83":"2","85":"76","86":"","87":"79","AK88":"99","SP92":"135","93":"63","95":"45","97":"139","98":"123","AK99":"56","100":"127","101":"38","105":"100","106":"122","SP107":"125","109":"165","110":"38","111":"61","113":"","114":"157","SP117":"117","120":"25","121":"16","SP123":"108","124":"14","125":"20","SP126":"19","128":"10","129":"81","SP133":"170","134":"131","136":"136","137":"24","138":"1","139":"156","SP140":"42","141":"","143":"","144":"143","145":"50","SP146":"92","147":"33","148":"36","149":"","152":"15","AK154":"153","155":"118","161":"83","SP162":"147","163/2":"64","163":"128","164":"168","SP165":"119","167":"113","167/1":"68","168":"162","169":"173","170/1":"158","170/2":"112","171":"120","SP172":"8","AN173":"146","174":"174","AK175":"17","177":"3","180":"21","181":"103","182":"67","200":"150","AK200":"89","SP201":"48","3":"116","4":"166","10":"132","11":"","17":"75","18":"85","19":"144","24":"148","08(Metso)":"106","SP7":"18","119":"163"};
 const QR_TO_CC = {"57":"1","43":"2","11":"2","59":"SP4","130":"5","51":"5","46":"6","109":"6","160":"7","7":"7","72":"8","137":"8","91":"SP9","105":"9","155":"AK10","86":"12","151":"12","4":"13","80":"13","65":"14","27":"14","149":"15","58":"15","111":"16","40":"16","47":"SP17","41":"SP18","29":"20","97":"21","77":"21","126":"22","9":"22","62":"23","164":"23","148":"24","87":"25","94":"25","90":"AK26","73":"27","141":"28","12":"31","23":"32","6":"33","152":"34","171":"35","161":"36","88":"37","26":"38","82":"39","121":"SP40","55":"40","101":"42","22":"42/1","52":"43","98":"44","104":"AK45","35":"47","129":"48","69":"AK51","107":"52/1","115":"SP52","78":"AK53","140":"SP54","124":"AN57","172":"58","44":"60","95":"61","60":"62","53":"63","28":"AN64","159":"SP66","71":"67","110":"SP68","133":"69","154":"71","96":"71/1","30":"72","32":"72/1","31":"73","74":"74","169":"75","66":"76","102":"76/1","84":"77","37":"78","13":"80","167":"81","93":"AN82","2":"83","76":"85","79":"87","99":"AK88","135":"SP92","63":"93","45":"95","139":"97","123":"98","56":"AK99","127":"100","38":"110","100":"105","122":"106","125":"SP107","165":"109","61":"111","157":"114","117":"SP117","25":"120","16":"121","108":"SP123","14":"124","20":"125","19":"SP126","10":"128","81":"129","170":"SP133","131":"134","136":"136","24":"137","1":"138","156":"139","42":"SP140","143":"144","50":"145","92":"SP146","33":"147","36":"148","15":"152","153":"AK154","118":"155","83":"161","147":"SP162","64":"163/2","128":"163","168":"164","119":"SP165","113":"167","68":"167/1","162":"168","173":"169","158":"170/1","112":"170/2","120":"171","8":"SP172","146":"AN173","174":"174","17":"AK175","3":"177","21":"180","103":"181","67":"182","150":"200","89":"AK200","48":"SP201","116":"3","166":"4","132":"10","75":"17","85":"18","144":"19","106":"08(Metso)","18":"SP7","163":"119"};
@@ -556,7 +645,7 @@ function updateChip() {
 }
 
 /* ══ SECTION COUNTERS ══ */
-const SECS = ['grate','centre','side','ssb','wheel','bearing','pressure','sag','reversed'];
+const SECS = ['grate','centre','side','ssb','wheel','bearing','pressure','sag','reversed','probsol'];
 function updateCounters(){
   let total=0,filled=0;
   SECS.forEach(sec=>{
@@ -572,6 +661,7 @@ document.querySelectorAll('input[data-sec]').forEach(i=>i.addEventListener('inpu
 
 /* ══ RECORDS ══ */
 let records=[];
+let dbRows=[];
 const COLS=[
   {id:'grate_repl_date',label:'Grate bar replacement Date'},{id:'grate_make',label:'Grate Bar make'},
   {id:'cc_repl_date',label:'CC replacement date'},{id:'cc_make',label:'CC make'},
@@ -587,6 +677,8 @@ const COLS=[
   {id:'n_sag_date',label:'N sag measured date'},{id:'n_sag_value',label:'N sag value'},
   {id:'s_sag_date',label:'S sag measured date'},{id:'s_sag_value',label:'S sag value'},
   {id:'car_reversed',label:'Car reversed'},
+  {id:'problem',     label:'Problem'},
+  {id:'solution',    label:'Solution'},
 ];
 
 function collectRow(){
@@ -596,69 +688,236 @@ function collectRow(){
   return row;
 }
 
-document.getElementById('btnAddRow').addEventListener('click',()=>{
-  const cc=document.getElementById('ccSelect').value, qr=document.getElementById('qrInput').value.trim();
-  if(!cc&&!qr){toast('⚠ Enter QR No or select CC No first!','#f59e0b');return;}
+/* ══ ADD ROW — saves locally AND posts to save_pp2.php ══ */
+document.getElementById('btnAddRow').addEventListener('click', () => {
+  const cc = document.getElementById('ccSelect').value;
+  const qr = document.getElementById('qrInput').value.trim();
+  if (!cc && !qr) { toast('⚠ Enter QR No or select CC No first!', '#f59e0b'); return; }
+
   const row = collectRow();
   records.push(row);
   renderTable();
   syncCounts();
-  toast('✔ Row '+records.length+' saved — '+(cc||'?')+' / QR '+(qr||'?'),'#10b981');
-  // Also persist to server CSV
-  fetch('/log_maintenance', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      qr: qr ? 'QR No-'+qr : cc,
-      cc: cc,
-      tech: 'PP2 System',
-      dept: '',
-      issue: 'Car History Entry',
-      priority: '',
-      status: 'Completed',
-      datetime: new Date().toISOString().replace('T',' ').substring(0,19),
-      remarks: JSON.stringify(row)
-    })
-  }).catch(()=>{});
+  toast('✔ Row ' + records.length + ' queued — syncing to DB…', '#22d3ee');
+
+  /* Build exact payload matching save_pp2.php column names */
+  const payload = {
+    qr_no:         qr ? 'QR No-' + qr : '',
+    cc_no:         cc,
+    grate_date:    document.getElementById('grate_repl_date').value.trim(),
+    grate_make:    document.getElementById('grate_make').value.trim(),
+    cc_repl_date:  document.getElementById('cc_repl_date').value.trim(),
+    cc_make:       document.getElementById('cc_make').value.trim(),
+    east_sc_date:  document.getElementById('east_sc_repl').value.trim(),
+    east_sc_make:  document.getElementById('east_sc_make').value.trim(),
+    west_sc_date:  document.getElementById('west_sc_repl').value.trim(),
+    west_sc_make:  document.getElementById('west_sc_make').value.trim(),
+    east_ssb_date: document.getElementById('east_ssb_repl').value.trim(),
+    east_ssb_make: document.getElementById('east_ssb_make').value.trim(),
+    west_ssb_date: document.getElementById('west_ssb_repl').value.trim(),
+    west_ssb_make: document.getElementById('west_ssb_make').value.trim(),
+    wr_en:         document.getElementById('wr_en').value.trim(),
+    wr_es:         document.getElementById('wr_es').value.trim(),
+    wr_wn:         document.getElementById('wr_wn').value.trim(),
+    wr_ws:         document.getElementById('wr_ws').value.trim(),
+    wb_en:         document.getElementById('wb_en').value.trim(),
+    wb_en_make:    document.getElementById('wb_en_make').value.trim(),
+    wb_es:         document.getElementById('wb_es').value.trim(),
+    wb_es_make:    document.getElementById('wb_es_make').value.trim(),
+    wb_wn:         document.getElementById('wb_wn').value.trim(),
+    wb_wn_make:    document.getElementById('wb_wn_make').value.trim(),
+    wb_ws:         document.getElementById('wb_ws').value.trim(),
+    wb_ws_make:    document.getElementById('wb_ws_make').value.trim(),
+    pr_en:         document.getElementById('pr_en').value.trim(),
+    pr_en_make:    document.getElementById('pr_en_make').value.trim(),
+    pr_es:         document.getElementById('pr_es').value.trim(),
+    pr_es_make:    document.getElementById('pr_es_make').value.trim(),
+    pr_wn:         document.getElementById('pr_wn').value.trim(),
+    pr_wn_make:    document.getElementById('pr_wn_make').value.trim(),
+    pr_ws:         document.getElementById('pr_ws').value.trim(),
+    pr_ws_make:    document.getElementById('pr_ws_make').value.trim(),
+    n_sag_date:    document.getElementById('n_sag_date').value.trim(),
+    n_sag_value:   document.getElementById('n_sag_value').value.trim(),
+    s_sag_date:    document.getElementById('s_sag_date').value.trim(),
+    s_sag_value:   document.getElementById('s_sag_value').value.trim(),
+    car_reversed:  document.getElementById('car_reversed').value.trim(),
+    problem:  document.getElementById('problem').value.trim(),
+    solution: document.getElementById('solution').value.trim(),
+  };
+
+  fetch(API_BASE + '/save_pp2.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      toast('✔ Saved to DB — ID #' + data.id, '#10b981');
+    } else {
+      toast('⚠ DB error: ' + (data.msg || 'Unknown'), '#f43f5e');
+    }
+  })
+  .catch(() => toast('⚠ Could not reach DB server', '#f43f5e'));
 });
 
-document.getElementById('btnReset').addEventListener('click',()=>{
-  document.querySelectorAll('input[data-sec]').forEach(i=>i.value='');
-  updateCounters(); toast('Form fields cleared','#f59e0b');
+document.getElementById('btnReset').addEventListener('click', () => {
+  document.querySelectorAll('input[data-sec]').forEach(i => i.value = '');
+  updateCounters(); toast('Form fields cleared', '#f59e0b');
 });
 
-function syncCounts(){
-  document.getElementById('rowsCount').textContent=records.length;
-  document.getElementById('barRows').textContent=records.length;
-  document.getElementById('recBadge').textContent=records.length;
+function syncCounts() {
+  document.getElementById('rowsCount').textContent = records.length;
+  document.getElementById('barRows').textContent   = records.length;
+  document.getElementById('recBadge').textContent  = records.length;
 }
 
-const PH=['SI No','CC No','QR No','Grate Date','Grate Make','CC Date','CC Make','E-SC Date','E-SC Make','W-SC Date','W-SC Make','E-SSB Date','E-SSB Make','W-SSB Date','W-SSB Make','WR-EN','WR-ES','WR-WN','WR-WS','WB-EN','WB-EN Mk','WB-ES','WB-ES Mk','WB-WN','WB-WN Mk','WB-WS','WB-WS Mk','PR-EN','PR-EN Mk','PR-ES','PR-ES Mk','PR-WN','PR-WN Mk','PR-WS','PR-WS Mk','N-Sag Dt','N-Sag','S-Sag Dt','S-Sag','Car Rev'];
-function renderTable(){
-  const head=document.getElementById('recHead'), body=document.getElementById('recBody');
-  if(!head.childElementCount){const tr=document.createElement('tr');PH.forEach(h=>{const th=document.createElement('th');th.textContent=h;tr.appendChild(th);});head.appendChild(tr);}
-  body.innerHTML='';
-  const show=records.slice(-8);
-  document.getElementById('recLast').textContent=Math.min(8,records.length);
-  show.forEach(row=>{
-    const tr=document.createElement('tr');
-    const vals=[row['SI No'],row['CC No'],row['QR No'],...COLS.map(c=>row[c.label])];
-    vals.forEach(v=>{const td=document.createElement('td');td.textContent=v||'';if(!v)td.classList.add('empty');tr.appendChild(td);});
+const PH=['SI No','CC No','QR No','Grate Date','Grate Make','CC Date','CC Make','E-SC Date','E-SC Make','W-SC Date','W-SC Make','E-SSB Date','E-SSB Make','W-SSB Date','W-SSB Make','WR-EN','WR-ES','WR-WN','WR-WS','WB-EN','WB-EN Mk','WB-ES','WB-ES Mk','WB-WN','WB-WN Mk','WB-WS','WB-WS Mk','PR-EN','PR-EN Mk','PR-ES','PR-ES Mk','PR-WN','PR-WN Mk','PR-WS','PR-WS Mk','N-Sag Dt','N-Sag','S-Sag Dt','S-Sag','Car Rev','Problem','Solution'];
+function renderTable() {
+  const head = document.getElementById('recHead'), body = document.getElementById('recBody');
+  if (!head.childElementCount) {
+    const tr = document.createElement('tr');
+    PH.forEach(h => { const th = document.createElement('th'); th.textContent = h; tr.appendChild(th); });
+    head.appendChild(tr);
+  }
+  body.innerHTML = '';
+  const show = records.slice(-8);
+  document.getElementById('recLast').textContent = Math.min(8, records.length);
+  show.forEach(row => {
+    const tr = document.createElement('tr');
+    const vals = [row['SI No'], row['CC No'], row['QR No'], ...COLS.map(c => row[c.label])];
+    vals.forEach(v => { const td = document.createElement('td'); td.textContent = v || ''; if (!v) td.classList.add('empty'); tr.appendChild(td); });
     body.appendChild(tr);
   });
   syncCounts();
 }
 
+/* ══ LOAD FROM DB ══ */
+const DB_COLS = [
+  {key:'id',           label:'ID'},
+  {key:'cc_no',        label:'CC No'},
+  {key:'qr_no',        label:'QR No'},
+  {key:'grate_date',   label:'Grate Date'},
+  {key:'grate_make',   label:'Grate Make'},
+  {key:'cc_repl_date', label:'CC Date'},
+  {key:'cc_make',      label:'CC Make'},
+  {key:'east_sc_date', label:'E-SC Date'},
+  {key:'east_sc_make', label:'E-SC Make'},
+  {key:'west_sc_date', label:'W-SC Date'},
+  {key:'west_sc_make', label:'W-SC Make'},
+  {key:'east_ssb_date',label:'E-SSB Date'},
+  {key:'east_ssb_make',label:'E-SSB Make'},
+  {key:'west_ssb_date',label:'W-SSB Date'},
+  {key:'west_ssb_make',label:'W-SSB Make'},
+  {key:'wr_en',        label:'WR-EN'},
+  {key:'wr_es',        label:'WR-ES'},
+  {key:'wr_wn',        label:'WR-WN'},
+  {key:'wr_ws',        label:'WR-WS'},
+  {key:'wb_en',        label:'WB-EN'},
+  {key:'wb_en_make',   label:'WB-EN Mk'},
+  {key:'wb_es',        label:'WB-ES'},
+  {key:'wb_es_make',   label:'WB-ES Mk'},
+  {key:'wb_wn',        label:'WB-WN'},
+  {key:'wb_wn_make',   label:'WB-WN Mk'},
+  {key:'wb_ws',        label:'WB-WS'},
+  {key:'wb_ws_make',   label:'WB-WS Mk'},
+  {key:'pr_en',        label:'PR-EN'},
+  {key:'pr_en_make',   label:'PR-EN Mk'},
+  {key:'pr_es',        label:'PR-ES'},
+  {key:'pr_es_make',   label:'PR-ES Mk'},
+  {key:'pr_wn',        label:'PR-WN'},
+  {key:'pr_wn_make',   label:'PR-WN Mk'},
+  {key:'pr_ws',        label:'PR-WS'},
+  {key:'pr_ws_make',   label:'PR-WS Mk'},
+  {key:'n_sag_date',   label:'N-Sag Dt'},
+  {key:'n_sag_value',  label:'N-Sag Val'},
+  {key:'s_sag_date',   label:'S-Sag Dt'},
+  {key:'s_sag_value',  label:'S-Sag Val'},
+  {key:'car_reversed', label:'Car Rev'},
+  {key:'problem',      label:'Problem'},
+  {key:'solution',     label:'Solution'},
+  {key:'created_at',   label:'Created At'},
+  {key:'saved_at',     label:'Saved At'},
+];
+
+function loadFromDB(ccFilter) {
+  const panel    = document.getElementById('dbPanel');
+  const statusEl = document.getElementById('dbStatus');
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  statusEl.className   = 'db-status loading';
+  statusEl.textContent = 'Fetching records…';
+
+  const url = API_BASE + '/get_pp2.php' + (ccFilter ? '?cc_no=' + encodeURIComponent(ccFilter) : '');
+
+  fetch(url)
+    .then(r => r.json())
+    .then(rows => {
+      dbRows = rows;
+      renderDBTable(rows);
+      document.getElementById('dbBadge').textContent = rows.length;
+      statusEl.className   = 'db-status ok';
+      statusEl.textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '') + ' loaded';
+      if (!rows.length) toast('No records found' + (ccFilter ? ' for "' + ccFilter + '"' : ''), '#f59e0b');
+      else toast('✔ ' + rows.length + ' records loaded from DB', '#8b5cf6');
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.className   = 'db-status err';
+      statusEl.textContent = 'Connection failed';
+      document.getElementById('dbBody').innerHTML =
+        '<tr><td colspan="99"><div class="empty-state" style="color:#f43f5e">⚠ Cannot reach ' + API_BASE + '/get_pp2.php — check network or CORS.</div></td></tr>';
+      toast('⚠ Cannot reach DB server', '#f43f5e');
+    });
+}
+
+function renderDBTable(rows) {
+  const head = document.getElementById('dbHead');
+  const body = document.getElementById('dbBody');
+  head.innerHTML = '';
+  const tr = document.createElement('tr');
+  DB_COLS.forEach(c => { const th = document.createElement('th'); th.textContent = c.label; tr.appendChild(th); });
+  head.appendChild(tr);
+  body.innerHTML = '';
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="99"><div class="empty-state">No records found.</div></td></tr>';
+    return;
+  }
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    DB_COLS.forEach(c => {
+      const td = document.createElement('td');
+      td.textContent = row[c.key] || '';
+      if (!row[c.key]) td.classList.add('empty');
+      // Highlight the ID and CC No columns
+      if (c.key === 'id')    { td.style.color = '#8b5cf6'; td.style.fontWeight = '700'; }
+      if (c.key === 'cc_no') { td.style.color = '#22d3ee'; }
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
+  });
+}
+
+document.getElementById('btnLoadDB').addEventListener('click',    () => loadFromDB(''));
+document.getElementById('btnFilterDB').addEventListener('click',  () => loadFromDB(document.getElementById('dbFilterCC').value.trim()));
+document.getElementById('btnClearFilter').addEventListener('click', () => {
+  document.getElementById('dbFilterCC').value = '';
+  loadFromDB('');
+});
+document.getElementById('dbFilterCC').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadFromDB(e.target.value.trim());
+});
+
 /* ══ QR CAMERA SCANNER (ZXing) ══ */
 let codeReader = null;
 let scanActive = false;
 
-const scanModal   = document.getElementById('scanModal');
-const scanVideo   = document.getElementById('scanVideo');
-const scanStatusEl= document.getElementById('scanStatus');
-const scanStatusT = document.getElementById('scanStatusText');
-const camSelect   = document.getElementById('camSelect');
-const btnScanQR   = document.getElementById('btnScanQR');
+const scanModal    = document.getElementById('scanModal');
+const scanVideo    = document.getElementById('scanVideo');
+const scanStatusEl = document.getElementById('scanStatus');
+const scanStatusT  = document.getElementById('scanStatusText');
+const camSelect    = document.getElementById('camSelect');
+const btnScanQR    = document.getElementById('btnScanQR');
 
 function setScanStatus(msg, type) {
   scanStatusEl.className = 'scan-status' + (type ? ' '+type : '');
@@ -669,24 +928,24 @@ async function populateCameras() {
   try {
     const devices = await ZXing.BrowserMultiFormatReader.listVideoInputDevices();
     camSelect.innerHTML = '';
-    if(!devices.length) { camSelect.innerHTML='<option value="">No camera found</option>'; setScanStatus('No camera detected','error'); return; }
-    const sorted = [...devices].sort((a,b)=>{
+    if (!devices.length) { camSelect.innerHTML='<option value="">No camera found</option>'; setScanStatus('No camera detected','error'); return; }
+    const sorted = [...devices].sort((a,b) => {
       const aR=/back|rear|environment/i.test(a.label), bR=/back|rear|environment/i.test(b.label);
       return aR===bR?0:aR?-1:1;
     });
-    sorted.forEach((d,i)=>{ const opt=document.createElement('option'); opt.value=d.deviceId; opt.textContent=d.label||'Camera '+(i+1); camSelect.appendChild(opt); });
+    sorted.forEach((d,i) => { const opt=document.createElement('option'); opt.value=d.deviceId; opt.textContent=d.label||'Camera '+(i+1); camSelect.appendChild(opt); });
     setScanStatus('Camera ready — point at a QR code');
   } catch(e) { setScanStatus('Camera permission denied or unavailable','error'); }
 }
 
 async function startScan(deviceId) {
-  if(codeReader) { try { codeReader.reset(); } catch(e){} }
+  if (codeReader) { try { codeReader.reset(); } catch(e){} }
   codeReader = new ZXing.BrowserMultiFormatReader();
   setScanStatus('Starting camera…');
   try {
     const constraints = deviceId ? {deviceId:{exact:deviceId}} : {facingMode:'environment'};
     await codeReader.decodeFromConstraints({video:constraints}, scanVideo, (result, err) => {
-      if(result) {
+      if (result) {
         const raw = result.getText();
         const numMatch = raw.match(/(\d+)/);
         const qrNum = numMatch ? numMatch[1] : raw;
@@ -698,103 +957,217 @@ async function startScan(deviceId) {
 }
 
 function onQRScanSuccess(qrNum, rawText) {
-  if(!scanActive) return;
+  if (!scanActive) return;
   scanActive = false;
-  setScanStatus('✔ QR scanned: '+rawText,'success');
+  setScanStatus('✔ QR scanned: '+rawText, 'success');
   applyQRValue(qrNum);
-  document.querySelector('.scan-frame').style.borderColor='#10b981';
-  setTimeout(()=>{ closeScanModal(); toast('✔ QR scanned: '+rawText+(QR_TO_CC[qrNum]?' → CC auto-filled':''),'#10b981'); }, 900);
+  document.querySelector('.scan-frame').style.borderColor = '#10b981';
+  setTimeout(() => { closeScanModal(); toast('✔ QR scanned: '+rawText+(QR_TO_CC[qrNum]?' → CC auto-filled':''),'#10b981'); }, 900);
 }
 
 function openScanModal() {
-  scanModal.classList.add('open'); scanActive=true;
-  document.querySelector('.scan-frame').style.borderColor='var(--cyan)';
+  scanModal.classList.add('open'); scanActive = true;
+  document.querySelector('.scan-frame').style.borderColor = 'var(--cyan)';
   setScanStatus('Initialising camera…');
   btnScanQR.classList.add('scanning');
-  populateCameras().then(()=>startScan(camSelect.value||null));
+  populateCameras().then(() => startScan(camSelect.value||null));
 }
 
 function closeScanModal() {
-  scanActive=false; scanModal.classList.remove('open'); btnScanQR.classList.remove('scanning');
-  if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
+  scanActive = false; scanModal.classList.remove('open'); btnScanQR.classList.remove('scanning');
+  if (codeReader) { try { codeReader.reset(); } catch(e){} codeReader = null; }
 }
 
-btnScanQR.addEventListener('click',openScanModal);
-document.getElementById('scanCloseBtn').addEventListener('click',closeScanModal);
-document.getElementById('scanCancelBtn').addEventListener('click',closeScanModal);
-scanModal.addEventListener('click',e=>{if(e.target===scanModal)closeScanModal();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&scanModal.classList.contains('open'))closeScanModal();});
-camSelect.addEventListener('change',function(){if(scanActive)startScan(this.value);});
+btnScanQR.addEventListener('click', openScanModal);
+document.getElementById('scanCloseBtn').addEventListener('click', closeScanModal);
+document.getElementById('scanCancelBtn').addEventListener('click', closeScanModal);
+scanModal.addEventListener('click', e => { if(e.target===scanModal) closeScanModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape' && scanModal.classList.contains('open')) closeScanModal(); });
+camSelect.addEventListener('change', function() { if(scanActive) startScan(this.value); });
 
 /* ══ EXPORT — ExcelJS ══ */
 document.getElementById('btnExport').addEventListener('click', async () => {
-  if(!records.length){toast('⚠ No records to export!','#f59e0b');return;}
+  // Decide source: DB rows if loaded, else session queue
+  let exportSource = [];
+
+  if (dbRows.length) {
+    // Apply current CC filter if any
+    const ccFilter = document.getElementById('dbFilterCC').value.trim().toLowerCase();
+    exportSource = ccFilter
+      ? dbRows.filter(r => (r.cc_no||'').toLowerCase().includes(ccFilter))
+      : dbRows;
+  } else if (records.length) {
+    exportSource = records;
+  }
+
+  if (!exportSource.length) { toast('⚠ No records to export!','#f59e0b'); return; }
+
+  const isDBSource = dbRows.length > 0;
   toast('Building styled Excel…','#22d3ee');
+
   const wb = new ExcelJS.Workbook();
   wb.creator='PP2 Maintenance System'; wb.created=new Date();
-  const CLR={indexFill:'FFC000',indexFont:'002060',grateBg:'A9CD90',centreBg:'92D050',sideBg:'8E98A5',ssbBg:'8EAADB',wheelBg:'BF9000',wbBg:'FFD965',prBg:'1FD3E1',sagBg:'0070C0'};
+  const CLR={indexFill:'FFC000',indexFont:'002060',grateBg:'A9CD90',centreBg:'92D050',sideBg:'8E98A5',ssbBg:'8EAADB',wheelBg:'BF9000',wbBg:'FFD965',prBg:'1FD3E1',sagBg:'0070C0',probBg:'E2AFFF'};
   const thinBorder={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
   const topBorder={top:{style:'thin'},left:{style:'thin'},right:{style:'thin'}};
   function hdrStyle(bgHex){return{fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FF'+bgHex}},font:{bold:true,name:'Calibri',size:11},alignment:{horizontal:'center',vertical:'middle',wrapText:true},border:thinBorder};}
   function subHdrStyle(){return{font:{bold:false,name:'Calibri',size:10},alignment:{horizontal:'center',vertical:'middle',wrapText:true},border:topBorder};}
-  const SHEET_COLS=[['SI No',6],['Grate bar replacement Date',13],['Grate Bar make',11],['CC replacement date',16],['CC make',9],['East Side casting replacement date',17],['East SC make',13],['West side casting replacement date',17],['West SC make',13],['East SSB replacement Date',13],['Make of East SSB',13],['West SSB relacement Date',18],['Make of West SSB',12],['EN',13],['ES',13],['WN',13],['WS',13],['EN',13],['EN Make',13],['ES',13],['ES Make',13],['WN',13],['WN Make',13],['WS',13],['WS Make',13],['EN',13],['EN Make',13],['ES',13],['ES Make',13],['WN',13],['WN Make',13],['WS',13],['WS Make',13],['N sag measured date',11],['N sag value',8],['S sag measured date',11],['S sag value',8],['Car reversed',13]];
-  const SECTIONS=[{label:'Grate Bars',start:2,end:3,color:CLR.grateBg},{label:'Centre Casting',start:4,end:5,color:CLR.centreBg},{label:'Side Casting',start:6,end:9,color:CLR.sideBg},{label:'SSB',start:10,end:13,color:CLR.ssbBg},{label:'Wheel Replacement Date',start:14,end:17,color:CLR.wheelBg},{label:'Wheel bearing replacement Date',start:18,end:25,color:CLR.wbBg},{label:'Pressure roller Replacement Date',start:26,end:33,color:CLR.prBg},{label:'SAG',start:34,end:37,color:CLR.sagBg},{label:'Car Reversed',start:38,end:38,color:'D9D9D9'}];
-  const byCC={};
-  records.forEach(r=>{const k=r['CC No']||'Unknown';if(!byCC[k])byCC[k]=[];byCC[k].push(r);});
-  for(const [ccName,rows] of Object.entries(byCC)){
-    const safe=ccName.replace(/[:\\/\?\*\[\]]/g,'').substring(0,31)||'Sheet';
-    const ws=wb.addWorksheet(safe,{views:[{showGridLines:true}]});
-    ws.columns=SHEET_COLS.map(([,w])=>({width:w}));
-    ws.getRow(1).height=15;
-    const idxCell=ws.getRow(1).getCell(2);
-    idxCell.value='Index';idxCell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+CLR.indexFill}};
-    idxCell.font={bold:true,color:{argb:'FF'+CLR.indexFont},name:'Calibri',size:11};
-    idxCell.alignment={horizontal:'center',vertical:'middle'};ws.mergeCells(1,2,1,38);
-    ws.getRow(2).height=18;
-    const infoCell=ws.getRow(2).getCell(2);
-    const qrVal=rows[0]?.['QR No']||'';
-    infoCell.value=ccName+(qrVal?',  '+qrVal:'');
-    infoCell.font={name:'Calibri',size:11};infoCell.alignment={horizontal:'left',vertical:'middle'};ws.mergeCells(2,2,2,38);
-    ws.getRow(3).height=18;ws.getRow(3).getCell(1).border=thinBorder;
-    SECTIONS.forEach(sec=>{
-      const cell=ws.getRow(3).getCell(sec.start);
-      cell.value=sec.label;Object.assign(cell,hdrStyle(sec.color));
-      if(sec.start!==sec.end)ws.mergeCells(3,sec.start,3,sec.end);
-    });
-    ws.getRow(4).height=43;
-    const siCell=ws.getRow(4).getCell(1);siCell.value='SI No';siCell.font={bold:true,name:'Calibri',size:10};siCell.alignment={horizontal:'center',vertical:'middle',wrapText:true};siCell.border=topBorder;
-    SHEET_COLS.slice(1).forEach(([label],idx)=>{const cell=ws.getRow(4).getCell(idx+2);cell.value=label;Object.assign(cell,subHdrStyle());});
-    const dataKeys=['SI No','Grate bar replacement Date','Grate Bar make','CC replacement date','CC make','East Side casting replacement date','East SC make','West side casting replacement date','West SC make','East SSB replacement Date','Make of East SSB','West SSB relacement Date','Make of West SSB','Wheel EN','Wheel ES','Wheel WN','Wheel WS','WB EN Date','WB EN Make','WB ES Date','WB ES Make','WB WN Date','WB WN Make','WB WS Date','WB WS Make','PR EN Date','PR EN Make','PR ES Date','PR ES Make','PR WN Date','PR WN Make','PR WS Date','PR WS Make','N sag measured date','N sag value','S sag measured date','S sag value','Car reversed'];
-    rows.forEach((row,ri)=>{const exRow=ws.getRow(5+ri);exRow.height=15;dataKeys.forEach((key,ci)=>{const cell=exRow.getCell(ci+1);cell.value=row[key]||'';cell.font={name:'Calibri',size:10};cell.alignment={horizontal:'center',vertical:'middle'};cell.border={left:{style:'thin'},right:{style:'thin'},bottom:{style:'thin'}};});});
-  }
-  const buf=await wb.xlsx.writeBuffer();
-  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');
-  const now=new Date();const stamp=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
-  a.href=url;a.download='PP2_MaintenanceLog_'+stamp+'.xlsx';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  toast('✔ '+records.length+' rows exported','#22d3ee');
-});
 
+  const SHEET_COLS=[['SI No',6],['Grate bar replacement Date',13],['Grate Bar make',11],['CC replacement date',16],['CC make',9],['East Side casting replacement date',17],['East SC make',13],['West side casting replacement date',17],['West SC make',13],['East SSB replacement Date',13],['Make of East SSB',13],['West SSB replacement Date',18],['Make of West SSB',12],['EN',13],['ES',13],['WN',13],['WS',13],['EN',13],['EN Make',13],['ES',13],['ES Make',13],['WN',13],['WN Make',13],['WS',13],['WS Make',13],['EN',13],['EN Make',13],['ES',13],['ES Make',13],['WN',13],['WN Make',13],['WS',13],['WS Make',13],['N sag measured date',11],['N sag value',8],['S sag measured date',11],['S sag value',8],['Car reversed',13],['Problem',22],['Solution',22]];
+
+  const SECTIONS=[
+    {label:'Grate Bars',start:2,end:3,color:CLR.grateBg},
+    {label:'Centre Casting',start:4,end:5,color:CLR.centreBg},
+    {label:'Side Casting',start:6,end:9,color:CLR.sideBg},
+    {label:'SSB',start:10,end:13,color:CLR.ssbBg},
+    {label:'Wheel Replacement Date',start:14,end:17,color:CLR.wheelBg},
+    {label:'Wheel Bearing Replacement Date',start:18,end:25,color:CLR.wbBg},
+    {label:'Pressure Roller Replacement Date',start:26,end:33,color:CLR.prBg},
+    {label:'SAG',start:34,end:37,color:CLR.sagBg},
+    {label:'Car Reversed',start:38,end:38,color:'D9D9D9'},
+    {label:'Problem & Solution',start:39,end:40,color:CLR.probBg},
+  ];
+
+  // Group by CC No
+  const byCC = {};
+  exportSource.forEach(r => {
+    const k = isDBSource ? (r.cc_no || 'Unknown') : (r['CC No'] || 'Unknown');
+    if (!byCC[k]) byCC[k] = [];
+    byCC[k].push(r);
+  });
+
+  for (const [ccName, rows] of Object.entries(byCC)) {
+    const safe = ccName.replace(/[:\\/\?\*\[\]]/g,'').substring(0,31) || 'Sheet';
+    const ws = wb.addWorksheet(safe, {views:[{showGridLines:true}]});
+    ws.columns = SHEET_COLS.map(([,w]) => ({width:w}));
+
+    // Row 1 — Index header
+    ws.getRow(1).height = 15;
+    const idxCell = ws.getRow(1).getCell(2);
+    idxCell.value = 'Index';
+    idxCell.fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FF'+CLR.indexFill}};
+    idxCell.font = {bold:true,color:{argb:'FF'+CLR.indexFont},name:'Calibri',size:11};
+    idxCell.alignment = {horizontal:'center',vertical:'middle'};
+    ws.mergeCells(1,2,1,40);
+
+    // Row 2 — CC No / QR No info
+    ws.getRow(2).height = 18;
+    const infoCell = ws.getRow(2).getCell(2);
+    const qrVal = isDBSource ? (rows[0]?.qr_no||'') : (rows[0]?.['QR No']||'');
+    infoCell.value = ccName + (qrVal ? ',  ' + qrVal : '');
+    infoCell.font = {name:'Calibri',size:11};
+    infoCell.alignment = {horizontal:'left',vertical:'middle'};
+    ws.mergeCells(2,2,2,40);
+
+    // Row 3 — Section headers
+    ws.getRow(3).height = 18;
+    ws.getRow(3).getCell(1).border = thinBorder;
+    SECTIONS.forEach(sec => {
+      const cell = ws.getRow(3).getCell(sec.start);
+      cell.value = sec.label;
+      Object.assign(cell, hdrStyle(sec.color));
+      if (sec.start !== sec.end) ws.mergeCells(3, sec.start, 3, sec.end);
+    });
+
+    // Row 4 — Column sub-headers
+    ws.getRow(4).height = 43;
+    const siCell = ws.getRow(4).getCell(1);
+    siCell.value = 'SI No';
+    siCell.font = {bold:true,name:'Calibri',size:10};
+    siCell.alignment = {horizontal:'center',vertical:'middle',wrapText:true};
+    siCell.border = topBorder;
+    SHEET_COLS.slice(1).forEach(([label],idx) => {
+      const cell = ws.getRow(4).getCell(idx+2);
+      cell.value = label;
+      Object.assign(cell, subHdrStyle());
+    });
+
+    // Data rows
+    rows.forEach((row, ri) => {
+      const exRow = ws.getRow(5+ri);
+      exRow.height = 15;
+
+      // Map DB keys or session keys to column values
+      const vals = isDBSource ? [
+        ri+1,
+        row.grate_date,   row.grate_make,
+        row.cc_repl_date, row.cc_make,
+        row.east_sc_date, row.east_sc_make,
+        row.west_sc_date, row.west_sc_make,
+        row.east_ssb_date,row.east_ssb_make,
+        row.west_ssb_date,row.west_ssb_make,
+        row.wr_en, row.wr_es, row.wr_wn, row.wr_ws,
+        row.wb_en, row.wb_en_make, row.wb_es, row.wb_es_make,
+        row.wb_wn, row.wb_wn_make, row.wb_ws, row.wb_ws_make,
+        row.pr_en, row.pr_en_make, row.pr_es, row.pr_es_make,
+        row.pr_wn, row.pr_wn_make, row.pr_ws, row.pr_ws_make,
+        row.n_sag_date, row.n_sag_value,
+        row.s_sag_date, row.s_sag_value,
+        row.car_reversed,
+        row.problem, row.solution,
+      ] : [
+        row['SI No'],
+        row['Grate bar replacement Date'], row['Grate Bar make'],
+        row['CC replacement date'],        row['CC make'],
+        row['East Side casting replacement date'], row['East SC make'],
+        row['West side casting replacement date'], row['West SC make'],
+        row['East SSB replacement Date'],  row['Make of East SSB'],
+        row['West SSB relacement Date'],   row['Make of West SSB'],
+        row['Wheel EN'], row['Wheel ES'], row['Wheel WN'], row['Wheel WS'],
+        row['WB EN Date'], row['WB EN Make'], row['WB ES Date'], row['WB ES Make'],
+        row['WB WN Date'], row['WB WN Make'], row['WB WS Date'], row['WB WS Make'],
+        row['PR EN Date'], row['PR EN Make'], row['PR ES Date'], row['PR ES Make'],
+        row['PR WN Date'], row['PR WN Make'], row['PR WS Date'], row['PR WS Make'],
+        row['N sag measured date'], row['N sag value'],
+        row['S sag measured date'], row['S sag value'],
+        row['Car reversed'],
+        row['Problem'], row['Solution'],
+      ];
+
+      vals.forEach((v, ci) => {
+        const cell = exRow.getCell(ci+1);
+        cell.value = v || '';
+        cell.font = {name:'Calibri',size:10};
+        cell.alignment = {horizontal:'center',vertical:'middle'};
+        cell.border = {left:{style:'thin'},right:{style:'thin'},bottom:{style:'thin'}};
+      });
+    });
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const stamp = now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  const filterTag = document.getElementById('dbFilterCC').value.trim();
+  a.href = url;
+  a.download = 'PP2_MaintenanceLog_' + stamp + (filterTag ? '_'+filterTag.replace(/[^a-z0-9]/gi,'_') : '') + '.xlsx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('✔ ' + exportSource.length + ' rows exported', '#22d3ee');
+});
 /* ══ Toast ══ */
-function toast(msg,color){
-  color=color||'#34d399';
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.style.color=color;el.style.borderColor=color+'55';
-  el.style.boxShadow='0 8px 40px rgba(0,0,0,.6),0 0 0 1px '+color+'44';
-  el.style.display='block';clearTimeout(el._t);
-  el._t=setTimeout(()=>el.style.display='none',3400);
+function toast(msg, color) {
+  color = color || '#34d399';
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.color = color; el.style.borderColor = color+'55';
+  el.style.boxShadow = '0 8px 40px rgba(0,0,0,.6),0 0 0 1px '+color+'44';
+  el.style.display = 'block'; clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = 'none', 3400);
 }
 
 /* ══ Enter key nav ══ */
-document.addEventListener('keydown',e=>{
-  if(e.key!=='Enter')return;
-  const all=[document.getElementById('qrInput'),document.getElementById('ccSelect'),...document.querySelectorAll('input[data-sec]')];
-  const idx=all.indexOf(document.activeElement);
-  if(idx>=0&&idx<all.length-1){all[idx+1].focus();e.preventDefault();}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const all = [document.getElementById('qrInput'), document.getElementById('ccSelect'), ...document.querySelectorAll('input[data-sec]')];
+  const idx = all.indexOf(document.activeElement);
+  if (idx >= 0 && idx < all.length - 1) { all[idx+1].focus(); e.preventDefault(); }
 });
 
-function checkLayout(){document.querySelectorAll('.two-col').forEach(tc=>{tc.style.gridTemplateColumns=window.innerWidth<680?'1fr':'1fr 1fr';});}
-window.addEventListener('resize',checkLayout);checkLayout();
+function checkLayout() { document.querySelectorAll('.two-col').forEach(tc => { tc.style.gridTemplateColumns = window.innerWidth < 680 ? '1fr' : '1fr 1fr'; }); }
+window.addEventListener('resize', checkLayout);
+checkLayout();
 updateCounters();
 </script>
 </body>
@@ -809,58 +1182,33 @@ def index():
 
 @app.route('/log_maintenance', methods=['POST'])
 def log_maintenance():
+    """Legacy CSV fallback endpoint — kept for compatibility."""
     content = request.json
     if not isinstance(content, dict):
         return jsonify({"status": "error", "message": "Invalid request"}), 400
 
     qr        = content.get('qr', '').strip()
     tech      = content.get('tech', '').strip()
-    dept      = content.get('dept', '').strip()
     issue     = content.get('issue', '').strip()
-    priority  = content.get('priority', '').strip()
-    status    = content.get('status', '').strip()
+    status_   = content.get('status', '').strip()
     datetime_ = content.get('datetime', '').strip()
     remarks   = content.get('remarks', '').strip()
 
-    if not qr or not tech or not issue or not status:
-        return jsonify({"status": "error", "message": "Missing required fields"}), 400
+    if not qr:
+        return jsonify({"status": "error", "message": "Missing QR"}), 400
 
     try:
         received_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        already_exists = False
-        if os.path.exists(CSV_FILE):
-            with open(CSV_FILE, mode='r', newline='', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                next(reader, None)
-                for row in reader:
-                    if row and row[0] == qr:
-                        already_exists = True
-                        break
-
-        if already_exists:
-            print(f"Warning: '{qr}' already logged.")
-            return jsonify({"status": "error", "message": "Already exists"}), 200
-
         file_is_empty = not os.path.exists(CSV_FILE) or os.stat(CSV_FILE).st_size == 0
         with open(CSV_FILE, mode='a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             if file_is_empty:
-                writer.writerow([
-                    "QR_DATA", "TECHNICIAN", "DEPARTMENT",
-                    "ISSUE_TYPE", "PRIORITY", "STATUS",
-                    "ENTRY_DATETIME", "REMARKS", "SAVED_AT"
-                ])
-            writer.writerow([qr, tech, dept, issue, priority, status, datetime_, remarks, received_at])
-
-        print(f"Maintenance logged: '{qr}' by {tech} at {received_at}")
+                writer.writerow(["QR_DATA","TECHNICIAN","ISSUE_TYPE","STATUS","ENTRY_DATETIME","REMARKS","SAVED_AT"])
+            writer.writerow([qr, tech, issue, status_, datetime_, remarks, received_at])
         return jsonify({"status": "success", "saved_at": received_at}), 200
-
     except Exception as e:
-        print(f"Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
 if __name__ == '__main__':
-    # Access from your phone via https://[Your-PC-IP]:5000
     app.run(host='0.0.0.0', port=5000)
